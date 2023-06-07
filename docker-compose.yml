@@ -1,0 +1,104 @@
+version: '3'
+
+services:
+  api:
+    container_name: "api"
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    environment:
+      - PORT=${API_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_CHANNEL=${REDIS_CHANNEL}
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USERNAME=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_TABLE=${MYSQL_TABLE}
+    ports:
+      - ${API_PORT}:${API_PORT}
+    volumes:
+      - ./api/server.js:/api/server.js
+      - ./api/services:/api/services
+    networks:
+      - express
+    depends_on:
+      - database
+      - redis
+      - worker
+
+  database:
+    container_name: "database"
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+#    volumes:
+#      - ./database/data:/var/lib/mysql:delegated
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    ports:
+      - ${MYSQL_PUBLIC_PORT}:${MYSQL_PORT}
+    networks:
+      - express
+
+  redis:
+    container_name: "redis"
+    image: "redis:latest"
+    restart: always
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    ports:
+      - ${REDIS_PUBLIC_PORT}:${REDIS_PORT}
+    networks:
+      - express
+
+  worker:
+    container_name: "worker"
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    environment:
+      - PORT=${WORKER_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_CHANNEL=${REDIS_CHANNEL}
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USERNAME=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_TABLE=${MYSQL_TABLE}
+#    ports:
+#      - ${WORKER_PORT}:${WORKER_PORT}
+    volumes:
+      - ./worker/worker.js:/worker/server.js
+    networks:
+      - express
+    depends_on:
+      - database
+      - redis
+
+  react:
+    container_name: "react"
+    build:
+      context: ./react
+      dockerfile: Dockerfile
+    volumes:
+      - ./react/src:/app/src:delegated
+    ports:
+      - ${REACT_PUBLIC_PORT}:3000
+    networks:
+      - express
+    depends_on:
+      - redis
+      - database
+      - api
+      - worker
+
+networks:
+  express:
+    driver: bridge
