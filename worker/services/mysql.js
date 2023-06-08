@@ -8,4 +8,10 @@ const createCustomer = async (params) => {
     return connection.execute(query);
 };
 
-export {createCustomer};
+const deleteCustomerById = async (id) => {
+    const query = `DELETE FROM customers where id = ${id}`;
+    const connection = await mysql.createConnection(mysqlConfig);
+    return connection.execute(query);
+};
+
+export {createCustomer, deleteCustomerById};
