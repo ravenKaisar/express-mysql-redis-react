@@ -11,6 +11,7 @@ const mysqlConfig = {
 
 const redisConfig = `redis://${process.env.REDIS_USER || ""}:${process.env.REDIS_PASSWORD || ""}@${process.env.REDIS_HOST || ""}:${process.env.REDIS_PORT || ""}`;
 
-const redisChannel = process.env.REDIS_CHANNEL || ""
+const customerInfoDeleteChannel = process.env.REDIS_CUSTOMER_INFO_DELETE_CHANNEL || ""
+const customerInfoStoreChannel = process.env.REDIS_CUSTOMER_INFO_STORE_CHANNEL || ""
 
-export {mysqlConfig, redisConfig, redisChannel};
+export {mysqlConfig, redisConfig, customerInfoDeleteChannel, customerInfoStoreChannel};
