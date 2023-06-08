@@ -7,4 +7,11 @@ const getCustomersList = async () => {
     return connection.execute(query);
 };
 
-export {getCustomersList};
+const getCustomerInfoById = async (id) => {
+    const query = `SELECT * FROM customers where id = ${id}`;
+    const connection = await mysql.createConnection(mysqlConfig);
+    return connection.execute(query);
+};
+
+
+export {getCustomersList, getCustomerInfoById};
