@@ -26,3 +26,5 @@ docker-compose build
 ```bash
 docker-compose up
 ```
+
+Click to see the [React Application](http://localhost:6004/)
