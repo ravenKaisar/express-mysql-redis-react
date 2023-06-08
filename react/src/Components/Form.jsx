@@ -1,5 +1,6 @@
 import {useState} from "react";
 import axios from "axios";
+import {toast} from "react-toastify";
 
 function Form({handleSubmission}) {
     const baseURL = "http://localhost:6006/api/v1/customers";
@@ -22,13 +23,14 @@ function Form({handleSubmission}) {
             {headers: {"Content-Type": "application/json", "Accept": "application/json"}})
             .then((response) => {
                 setIsLoading(false)
-                console.log(response)
+                setForm({name: '', email: ''})
+                toast(`Successfully create a customer. Please reload this page`, {type: "success"})
             })
             .catch((error) => {
                 setIsLoading(false)
-                console.log(error)
+                toast(`Something went qrong`, {type: "error"})
             })
-        handleSubmission();
+        // handleSubmission();
     };
     return (<form onSubmit={handleSubmit}>
             <div className="space-y-12">

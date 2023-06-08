@@ -1,9 +1,6 @@
-import dotenv from "dotenv";
-
 import {createClient} from "redis";
-import {redisConfig, redisChannel} from "./config.js";
 
-dotenv.config();
+import {customerInfoDeleteChannel, customerInfoStoreChannel, redisConfig} from "./config.js";
 
 const redisClient = createClient({url: redisConfig});
 
@@ -29,8 +26,21 @@ const deleteCacheCustomerList = async () => {
 
 const customerInfoPublishForConsumer = async (data) => {
     await redisClient.connect();
-    const subscriberCount = await redisClient.publish(redisChannel, data);
+    const subscriberCount = await redisClient.publish(customerInfoStoreChannel, data);
     await redisClient.disconnect();
-    console.log(`Total Subscribe Count From ${redisChannel} is: ${subscriberCount}`)
+    console.log(`Total Consumer Count From ${customerInfoStoreChannel} channel is: ${subscriberCount}`)
 };
-export {setCacheCustomerList, getCacheCustomerList, deleteCacheCustomerList, customerInfoPublishForConsumer};
+
+const customerDeletePublishForConsumer = async (id) => {
+    await redisClient.connect();
+    const subscriberCount = await redisClient.publish(customerInfoDeleteChannel, id);
+    await redisClient.disconnect();
+    console.log(`Total Consumer Count From ${customerInfoDeleteChannel} channel is: ${subscriberCount}`)
+};
+export {
+    setCacheCustomerList,
+    getCacheCustomerList,
+    deleteCacheCustomerList,
+    customerInfoPublishForConsumer,
+    customerDeletePublishForConsumer
+};
